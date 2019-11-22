@@ -1,0 +1,7 @@
+29 iron
+30 iron
+40 enemy
+41 iron
+42 iron
+43 enemy
+50 player

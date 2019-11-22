@@ -1,0 +1,17 @@
+27 enemy
+32 enemy
+40 iron
+43 iron
+51 iron
+52 iron
+55 iron
+56 iron
+58 player
+62 iron
+63 iron
+64 iron
+65 rock
+66 rock
+67 iron
+68 iron
+69 iron
