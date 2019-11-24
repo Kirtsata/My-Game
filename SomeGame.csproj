@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Platforms>AnyCPU;x86</Platforms>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <StartupObject />
+    <Win32Resource />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
@@ -20,4 +23,10 @@
     <PackageReference Include="SFML.Net" Version="2.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Target\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
 </Project>

@@ -9,7 +9,7 @@ using SFML.System;
 using SFML.Audio;
 using System.IO;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class UI_Minimap : Program
     {
@@ -27,9 +27,9 @@ namespace SomeGame
 
             number = Number;
 
-            if (File.Exists("minimap_layout.txt"))
+            if (File.Exists(@"Target\minimap_layout.txt"))
             {
-                List<string> minimap = File.ReadAllLines("minimap_layout.txt").ToList();
+                List<string> minimap = File.ReadAllLines(@"Target\minimap_layout.txt").ToList();
                 foreach (var m in minimap)
                 {
                     string[] mLine = m.Split(' ');

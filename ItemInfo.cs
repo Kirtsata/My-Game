@@ -1,28 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SFML.Graphics;
-using SFML.Window;
 using SFML.System;
-using SFML.Audio;
-using System.Threading;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
-    class ItemInfo
+    class ItemInfo : Program
     {
-        public Sprite bg;
+        public Sprite bg = new Sprite(Resources._itemInfo) { Position = new Vector2f(cResolution.X, cResolution.Y / 2 - Resources._itemInfo.Size.Y / 2) };
         public Text text = new Text() { Font = Resources._FontPixeled, CharacterSize = 90};
         public Text subtext = new Text() { Font = Resources._FontPixeled, CharacterSize = 30 };
         public bool isWorking;
-        Vector2u cResolution;
 
-        public ItemInfo(Vector2u _cResolution)
+        public ItemInfo()
         {
-            cResolution = _cResolution;
-            bg = new Sprite(Resources._itemInfo) { Position = new Vector2f(cResolution.X, cResolution.Y / 2 - Resources._itemInfo.Size.Y / 2) };
         }
 
         float saveTick = 0;
@@ -47,18 +38,12 @@ namespace SomeGame
                 ResetElementsPosition();
                 text.DisplayedString = _text;
                 subtext.DisplayedString = _subtext;
-                //Thread th = new Thread(SlideThread) { IsBackground = true };
-                //th.Start();
             }
             else
             {
                 queueText.Add(_text);
                 queueSubText.Add(_subtext);
             }
-        }
-
-        void WaitThread()
-        {
         }
 
         public void Update()
@@ -79,7 +64,7 @@ namespace SomeGame
                         hasGoneToMiddle = true;
                     }
                 }
-                else if (aTick - saveTick > (queueText.Count == 0 ? 120 : 30))
+                else if (aTick - saveTick > (queueText.Count == 0 ? 90 : 30))
                 {
                     if (tick >= 0)
                     {

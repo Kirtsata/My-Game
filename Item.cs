@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
 using SFML.Audio;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Item : Program
     {
@@ -40,7 +41,7 @@ namespace SomeGame
             sprite.Position = new Vector2f(X, Y);
             cPosition = sprite.Position;
         }
-        public void Action(Entity entity, ref UI_Perk UI_Perk)
+        public void Action(ref Entity entity, ref UI_Perk UI_Perk)
         {
             switch (rarity)
             {
@@ -127,7 +128,7 @@ namespace SomeGame
             public const int Energy0 = 2;
             public const int Firerate0 = 3;
             public const int Damage0 = 4;
-            public const int Bomb0 = 6;
+            public const int Bomb0 = 5;
         }
 
         public static class ItemsRare

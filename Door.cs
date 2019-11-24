@@ -8,7 +8,7 @@ using SFML.Window;
 using SFML.System;
 using SFML.Audio;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Door : Program
     {
@@ -52,7 +52,7 @@ namespace SomeGame
                     collider = new FloatRect(tempPos.X - Resources._doorClosed.Size.Y * 5, tempPos.Y, Resources._doorClosed.Size.Y * 11, Resources._doorClosed.Size.Y * -10);
                     break;
                 default:
-                    Console.WriteLine($"Kiril Error: Poisiont was set to {position}...");
+                    Console.WriteLine($"Kiril Error: Position was set to {position}...");
                     break;
             }
 

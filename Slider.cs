@@ -9,7 +9,7 @@ using SFML.System;
 using SFML.Audio;
 using System.Threading;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Slider : Program
     {

@@ -9,126 +9,111 @@ using SFML.System;
 using SFML.Audio;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Program
     {
-        public RenderWindow window;
+        public static RenderWindow window;
         public static Random rng = new Random();
         //static float speed = 7.5f;
-        public Vector2u cResolution = new Vector2u(1200, 800);
-        public Vector2u Resolution = new Vector2u(1200, 800);
-        public float boundsOffset = 120;
-        public int tick;
+        public static Vector2u cResolution = new Vector2u(1200, 800);
+        public static Vector2u Resolution = new Vector2u(1200, 800);
+        public static float boundsOffset = 120;
+        public static int tick;
 
-        public RectangleShape BlackCoverShape;
+        public static RectangleShape BlackCoverShape = new RectangleShape() { Position = new Vector2f(0, 0), Size = new Vector2f(1200, 800), FillColor = new Color(0, 0, 0, 0) };
 
-        public int mapCount = 0;
+        public static int mapCount = 0;
         public static int roomCount = 0;
 
-        public bool hasGeneratedMap = false;
+        public static bool hasGeneratedMap = false;
 
-        // FloatRect AreaOfReach; //Set below
-        public FloatRect[] wallsProjectile; //Set below
-        public FloatRect[] walls; //Set below
-        public Grid grid;
+        public static FloatRect[] wallsProjectile; //Set below
+        public static FloatRect[] walls; //Set below
+        public static Grid grid;
 
-        public View view = new View(new FloatRect(0, 0, 1200, 800));
+        public static View view = new View(new FloatRect(0, 0, 1200, 800));
 
-        public Sprite deathScreen = new Sprite(Resources._deathScreen) { Scale = new Vector2f(10, 10) };
-        public Sprite deathDetails;
+        public static Sprite deathScreen = new Sprite(Resources._deathScreen) { Scale = new Vector2f(10, 10) };
+        public static Sprite deathDetails = new Sprite(Resources._deathDetails) { Scale = new Vector2f(7, 7), Position = new Vector2f(10, cResolution.Y - Resources._deathDetails.Size.Y*7 - 10) };
 
-        public ItemInfo itemInfo;
-        public Sprite heartShadow = new Sprite(Resources._heartShadow) { Scale = new Vector2f(2.5f, 2.5f), Position = new Vector2f(-25, -35) };
-        public Sprite minimapShadow = new Sprite(Resources._mmShadow) { Position = new Vector2f(50 + 1200 - Resources._mmShadow.Size.X, -50) };
-        public Sprite scrollingBG = new Sprite(Resources._scrollingBG) { Scale = new Vector2f(7, 7), TextureRect = new IntRect(0, 0, (int)Resources._scrollingBG.Size.X * 2, (int)Resources._scrollingBG.Size.Y * 2), Color = new Color(100, 100, 100) };
-        public Sprite Orb;
-        public Sprite[] menuButtons;
-        Sprite[] optionsButtons;
+        public static ItemInfo itemInfo = new ItemInfo();
+        public static Sprite heartShadow = new Sprite(Resources._heartShadow) { Scale = new Vector2f(2.5f, 2.5f), Position = new Vector2f(-25, -35) };
+        public static Sprite minimapShadow = new Sprite(Resources._mmShadow) { Position = new Vector2f(50 + 1200 - Resources._mmShadow.Size.X, -50) };
+        public static Sprite scrollingBG = new Sprite(Resources._scrollingBG) { Scale = new Vector2f(7, 7), TextureRect = new IntRect(0, 0, (int)Resources._scrollingBG.Size.X * 2, (int)Resources._scrollingBG.Size.Y * 2), Color = new Color(100, 100, 100) };
+        public static Sprite Orb = new Sprite(Resources._projectile) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 - 150), Origin = (Vector2f)Resources._projectile.Size / 2, Scale = new Vector2f(20, 20) };
+        public static Sprite[] menuButtons = new Sprite[]
+        {
+            new Sprite(Resources._buttonNewGame) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 - Resources._buttonNewGame.Size.Y*6), Origin = (Vector2f)Resources._buttonNewGame.Size / 2, Scale = new Vector2f(6, 6) },
+            new Sprite(Resources._buttonPlay) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170), Origin = (Vector2f)Resources._buttonPlay.Size / 2, Scale = new Vector2f(6, 6), Color = new Color(100,100,100) },
+            new Sprite(Resources._buttonOptions) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 + Resources._buttonOptions.Size.Y*6), Origin = (Vector2f)Resources._buttonOptions.Size / 2, Scale = new Vector2f(6, 6) },
+            new Sprite(Resources._buttonQuit) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 + Resources._buttonQuit.Size.Y*6*2), Origin = (Vector2f)Resources._buttonQuit.Size / 2, Scale = new Vector2f(6, 6) },
+        };
+        static Sprite[] optionsButtons = new Sprite[]
+        {
+            new Sprite(Resources._buttonSave) { Position = new Vector2f(cResolution.X / 2 - Resources._buttonSave.Size.X*6/2, cResolution.Y - 150), Origin = (Vector2f)Resources._buttonSave.Size / 2, Scale = new Vector2f(6, 6) },
+            new Sprite(Resources._buttonCancel) { Position = new Vector2f(cResolution.X / 2  + Resources._buttonCancel.Size.X*6/2, cResolution.Y - 150), Origin = (Vector2f)Resources._buttonCancel.Size / 2, Scale = new Vector2f(6, 6) }
+        };
 
-        Sprite[] gameOverButtons;
+        static Sprite[] gameOverButtons = new Sprite[]
+        {
+            new Sprite(Resources._buttonNewGame) { Position = new Vector2f(cResolution.X / 2, cResolution.Y - 250), Origin = (Vector2f)Resources._buttonNewGame.Size / 2, Scale = new Vector2f(6, 6) },
+            new Sprite(Resources._buttonQuit) { Position = new Vector2f(cResolution.X / 2, cResolution.Y - 250 + Resources._buttonNewGame.Size.Y*6), Origin = (Vector2f)Resources._buttonQuit.Size / 2, Scale = new Vector2f(6, 6) },
+        };
 
-        static Slider[] sliders;
+        static Slider[] sliders = new Slider[]
+        {
+            new Slider("Music", 25, new Vector2f(cResolution.X/2, 150)),
+            new Slider("SFX", 25, new Vector2f(cResolution.X/2, 300)),
+            new Slider("Resolution", 0, new Vector2f(cResolution.X/2, 450))
+        };
 
-        static Sprite[] texts;
-        public Sprite[] resolutions;
-        Vector2u[] iResolutions = new Vector2u[]
+        static Sprite[] texts = new Sprite[]
+        {
+            new Sprite(Resources._textMusic) { Position = new Vector2f(cResolution.X/2, 75), Origin = (Vector2f)Resources._textMusic.Size/2, Scale = new Vector2f(5, 5)},
+            new Sprite(Resources._textSFX) { Position = new Vector2f(cResolution.X/2, 225), Origin = (Vector2f)Resources._textSFX.Size/2, Scale = new Vector2f(5, 5)},
+            new Sprite(Resources._textResolution) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + 20, 350), Scale = new Vector2f(5, 5)},
+        };
+        public static Sprite[] resolutions = new Sprite[]
+        {
+            new Sprite(Resources._text600x400) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350), Scale = new Vector2f(5, 5) },
+            new Sprite(Resources._text900x600) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) },
+            new Sprite(Resources._text1200x800) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) },
+            new Sprite(Resources._text1400x950) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) }
+        };
+
+        static Vector2u[] iResolutions = new Vector2u[]
         {
             new Vector2u(600, 400),
             new Vector2u(900, 600),
             new Vector2u(1200, 800),
             new Vector2u(1425, 950)
         };
-        public Thread shakeThread;
-        public Thread blackDipThread;
-        public List<Thread> playSound = new List<Thread>();
+        public static Thread shakeThread;
+        public static Thread blackDipThread;
+        public static List<Thread> playSound = new List<Thread>();
 
         //Actions outside gameplay
-        public bool gameOn = false;
-        public bool gameOver = false;
-        public bool optionsOn = false;
+        public static bool gameOn = false;
+        public static bool gameOver = false;
+        public static bool optionsOn = false;
 
         static void Main(string[] args)
         {
-            var program = new Program();
-            program.Run();
-        }
+            
 
-        public void Run()
-        {
-            menuButtons = new Sprite[]
-            {
-                new Sprite(Resources._buttonNewGame) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 - Resources._buttonNewGame.Size.Y*6), Origin = (Vector2f)Resources._buttonNewGame.Size / 2, Scale = new Vector2f(6, 6) },
-                new Sprite(Resources._buttonPlay) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170), Origin = (Vector2f)Resources._buttonPlay.Size / 2, Scale = new Vector2f(6, 6), Color = new Color(100,100,100) },
-                new Sprite(Resources._buttonOptions) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 + Resources._buttonOptions.Size.Y*6), Origin = (Vector2f)Resources._buttonOptions.Size / 2, Scale = new Vector2f(6, 6) },
-                new Sprite(Resources._buttonQuit) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 + 170 + Resources._buttonQuit.Size.Y*6*2), Origin = (Vector2f)Resources._buttonQuit.Size / 2, Scale = new Vector2f(6, 6) },
-            };
-            sliders = new Slider[]
-            {
-                new Slider("Music", 25, new Vector2f(cResolution.X/2, 150)),
-                new Slider("SFX", 25, new Vector2f(cResolution.X/2, 300)),
-                new Slider("Resolution", 0, new Vector2f(cResolution.X/2, 450))
-            };
-            texts = new Sprite[]
-            {
-            new Sprite(Resources._textMusic) { Position = new Vector2f(cResolution.X/2, 75), Origin = (Vector2f)Resources._textMusic.Size/2, Scale = new Vector2f(5, 5)},
-            new Sprite(Resources._textSFX) { Position = new Vector2f(cResolution.X/2, 225), Origin = (Vector2f)Resources._textSFX.Size/2, Scale = new Vector2f(5, 5)},
-            new Sprite(Resources._textResolution) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + 20, 350), Scale = new Vector2f(5, 5)},
-            };
-            resolutions = new Sprite[]
-            {
-                 new Sprite(Resources._text600x400) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350), Scale = new Vector2f(5, 5) },
-                 new Sprite(Resources._text900x600) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) },
-                 new Sprite(Resources._text1200x800) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) },
-                 new Sprite(Resources._text1400x950) { Position = new Vector2f(sliders[0].slider.GetGlobalBounds().Left + texts[2].GetGlobalBounds().Width + 20, 350),Scale = new Vector2f(5, 5) }
-            };
-            gameOverButtons = new Sprite[]
-            {
-                 new Sprite(Resources._buttonNewGame) { Position = new Vector2f(cResolution.X / 2, cResolution.Y - 250), Origin = (Vector2f)Resources._buttonNewGame.Size / 2, Scale = new Vector2f(6, 6) },
-                 new Sprite(Resources._buttonQuit) { Position = new Vector2f(cResolution.X / 2, cResolution.Y - 250 + Resources._buttonNewGame.Size.Y*6), Origin = (Vector2f)Resources._buttonQuit.Size / 2, Scale = new Vector2f(6, 6) },
-            };
-            optionsButtons = new Sprite[]
-            {
-                new Sprite(Resources._buttonSave) { Position = new Vector2f(cResolution.X / 2 - Resources._buttonSave.Size.X*6/2, cResolution.Y - 150), Origin = (Vector2f)Resources._buttonSave.Size / 2, Scale = new Vector2f(6, 6) },
-                new Sprite(Resources._buttonCancel) { Position = new Vector2f(cResolution.X / 2  + Resources._buttonCancel.Size.X*6/2, cResolution.Y - 150), Origin = (Vector2f)Resources._buttonCancel.Size / 2, Scale = new Vector2f(6, 6) }
-            };
-            Orb = new Sprite(Resources._projectile) { Position = new Vector2f(cResolution.X / 2, cResolution.Y / 2 - 150), Origin = (Vector2f)Resources._projectile.Size / 2, Scale = new Vector2f(20, 20) };
-            deathDetails = new Sprite(Resources._deathDetails) { Scale = new Vector2f(7, 7), Position = new Vector2f(10, cResolution.Y - Resources._deathDetails.Size.Y * 7 - 10) };
-            itemInfo = new ItemInfo(cResolution);
-
-            BlackCoverShape = new RectangleShape() { Position = new Vector2f(0, 0), Size = new Vector2f(1200, 800), FillColor = new Color(0, 0, 0, 0) };
-
-            OST.menu.Play();
             window = new RenderWindow(new VideoMode(1200, 800), "Unbinding of Kiril", Styles.Close);
             //window.SetView(new View(new FloatRect(-1200, -800, 1200*3, 800*3)));
+            window.SetIcon(Resources._icon.Size.X, Resources._icon.Size.Y, Resources._icon.Pixels);
 
             window.SetFramerateLimit(60);
             window.Closed += Win_Closed;
 
-            if (File.Exists("settings.txt"))
+            if (File.Exists(@"Target\settings.txt"))
             {
-                string[] lines = File.ReadAllLines("settings.txt");
+                string[] lines = File.ReadAllLines(@"Target\settings.txt");
                 foreach (var l in lines)
                 {
                     string[] entries = l.Split(' ');
@@ -160,10 +145,10 @@ namespace SomeGame
 
             // =============================== Load Map ===============================
 
-            while (File.Exists("map" + mapCount + ".txt"))
+            while (File.Exists(@"Target\map" + mapCount + ".txt"))
                 mapCount++;
-            if (File.Exists("layout.txt"))
-                roomCount = File.ReadAllLines("layout.txt").Count();
+            if (File.Exists(@"Target\layout.txt"))
+                roomCount = File.ReadAllLines(@"Target\layout.txt").Count();
             Console.WriteLine($"Room Count: {roomCount}");
 
             List<Room> rooms = new List<Room>();
@@ -188,6 +173,7 @@ namespace SomeGame
 
             uint rainbowPointer = 0;
 
+            OST.menu.Play();
             while (window.IsOpen)
             {
                 tick++;
@@ -232,8 +218,6 @@ namespace SomeGame
                             r.uiPerk.Update(r.player, r.player.perks.charges);
                             itemInfo.Update();
 
-
-
                             // =============================== Outside class checks and interactions with World ===============================
 
                             // ------------------ Projectile Interactions ------------------
@@ -246,18 +230,18 @@ namespace SomeGame
                                     if (!enemy.isDead && projectile.collider.Intersects(enemy.collider))
                                     {
                                         r.projectiles.Remove(projectile);
-                                        enemy.Health -= r.player.Damage;
+                                        enemy.Health-=r.player.Damage;
                                         r.particles.Add(new Particles(Resources._bloodParticles, new Vector2f(enemy.sprite.Position.X + enemy.sprite.Texture.Size.X * enemy.sprite.Scale.X / 2, enemy.sprite.Position.Y + enemy.sprite.Texture.Size.Y * enemy.sprite.Scale.Y / 2), 5, Lifespan: 15));
                                         if (enemy.Health <= 0)
                                         {
                                             r.particles.Add(new Particles(Resources._bloodParticles, new Vector2f(enemy.sprite.Position.X + enemy.sprite.Texture.Size.X * enemy.sprite.Scale.X / 2, enemy.sprite.Position.Y + enemy.sprite.Texture.Size.Y * enemy.sprite.Scale.Y / 2), 20, Speed: 1.2f, Lifespan: 15));
                                             int t = rng.Next(Resources._bloodStains.Count);
-                                            r.static_entities.Add(new Sprite(Resources._bloodStains[t]) { Position = enemy.sprite.Position + new Vector2f(enemy.sprite.GetGlobalBounds().Width / 2, enemy.sprite.GetGlobalBounds().Height / 2), Origin = (Vector2f)Resources._bloodStains[t].Size / 2, Scale = new Vector2f(4, 4), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(100, 200)) });
+                                            r.static_entities.Add(new Sprite(Resources._bloodStains[t]) { Position = enemy.sprite.Position + new Vector2f(enemy.sprite.GetGlobalBounds().Width/2, enemy.sprite.GetGlobalBounds().Height/2), Origin = (Vector2f)Resources._bloodStains[t].Size/2, Scale = new Vector2f(4, 4), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(100, 200)) });
                                             for (int i = 0; i < rng.Next(3, 8); i++)
                                             {
                                                 int t1 = rng.Next(Resources._sBloodParticles.Count);
                                                 float s = rng.Next(20, 40) / 10;
-                                                r.static_entities.Add(new Sprite(Resources._sBloodParticles[t1]) { Position = new Vector2f(enemy.sprite.Position.X + enemy.sprite.GetGlobalBounds().Width / 2 + rng.Next(-50, 50), enemy.sprite.Position.Y + enemy.sprite.GetGlobalBounds().Height / 2 + rng.Next(-50, 50)), Origin = (Vector2f)Resources._sBloodParticles[t1].Size / 2, Scale = new Vector2f(s, s), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(200, 255)) });
+                                                r.static_entities.Add(new Sprite(Resources._sBloodParticles[t1]) { Position = new Vector2f(enemy.sprite.Position.X + enemy.sprite.GetGlobalBounds().Width/2 + rng.Next(-50, 50), enemy.sprite.Position.Y + enemy.sprite.GetGlobalBounds().Height/2 + rng.Next(-50, 50)), Origin = (Vector2f)Resources._sBloodParticles[t1].Size / 2, Scale = new Vector2f(s, s), Rotation = rng.Next(360), Color = new Color(100,100,100, (byte)rng.Next(200,255)) });
                                             }
 
                                         }
@@ -296,15 +280,15 @@ namespace SomeGame
                                         e.Health -= (int)r.player.perks.katDamage;
                                         r.particles.Add(new Particles(Resources._bloodParticles, new Vector2f(e.sprite.Position.X + e.sprite.Texture.Size.X * e.sprite.Scale.X / 2, e.sprite.Position.Y + e.sprite.Texture.Size.Y * e.sprite.Scale.Y / 2), 15, Speed: 1.2f, Lifespan: 15));
 
-                                        int t = rng.Next(Resources._bloodStains.Count);
-                                        r.static_entities.Add(new Sprite(Resources._bloodStains[t]) { Position = e.sprite.Position + new Vector2f(e.sprite.GetGlobalBounds().Width / 2, e.sprite.GetGlobalBounds().Height / 2), Origin = (Vector2f)Resources._bloodStains[t].Size / 2, Scale = new Vector2f(4, 4), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(100, 200)) });
+                                            int t = rng.Next(Resources._bloodStains.Count);
+                                            r.static_entities.Add(new Sprite(Resources._bloodStains[t]) { Position = e.sprite.Position + new Vector2f(e.sprite.GetGlobalBounds().Width / 2, e.sprite.GetGlobalBounds().Height / 2), Origin = (Vector2f)Resources._bloodStains[t].Size / 2, Scale = new Vector2f(4, 4), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(100, 200)) });
 
-                                        for (int i = 0; i < rng.Next(5, 10); i++)
-                                        {
-                                            int t1 = rng.Next(Resources._sBloodParticles.Count);
-                                            float s = rng.Next(20, 40) / 10;
-                                            r.static_entities.Add(new Sprite(Resources._sBloodParticles[t1]) { Position = new Vector2f(e.sprite.Position.X + e.sprite.GetGlobalBounds().Width / 2 + rng.Next(-50, 50), e.sprite.Position.Y + e.sprite.GetGlobalBounds().Height / 2 + rng.Next(-50, 50)), Origin = (Vector2f)Resources._sBloodParticles[t1].Size / 2, Scale = new Vector2f(s, s), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(200, 255)) });
-                                        }
+                                            for (int i = 0; i < rng.Next(5, 10); i++)
+                                            {
+                                                int t1 = rng.Next(Resources._sBloodParticles.Count);
+                                                float s = rng.Next(20, 40) / 10;
+                                                r.static_entities.Add(new Sprite(Resources._sBloodParticles[t1]) { Position = new Vector2f(e.sprite.Position.X + e.sprite.GetGlobalBounds().Width / 2 + rng.Next(-50, 50), e.sprite.Position.Y + e.sprite.GetGlobalBounds().Height / 2 + rng.Next(-50, 50)), Origin = (Vector2f)Resources._sBloodParticles[t1].Size / 2, Scale = new Vector2f(s, s), Rotation = rng.Next(360), Color = new Color(100, 100, 100, (byte)rng.Next(200, 255)) });
+                                            }
                                         playSound.Add(new Thread(() => PlaySound(OST.Flesh, true, rng.Next(-100, -25))));
                                         playSound[playSound.Count - 1].Start();
                                     }
@@ -323,7 +307,7 @@ namespace SomeGame
                                         foreach (var collidable in c.ToList())
                                             if (bomb.AOE.Intersects(collidable.collider) && collidable.isDestroyable)
                                             {
-                                                if (collidable.hasCross) r.SpawnItem(1, 1, (Vector2i)collidable.sprite.Position + new Vector2i(15, 15));
+                                                if (collidable.hasCross) r.SpawnItem(1, 1, (Vector2i)collidable.sprite.Position + new Vector2i(15,15));
                                                 r.particles.Add(new Particles(Resources._rockParticles, new Vector2f(collidable.sprite.Position.X + collidable.sprite.GetGlobalBounds().Width, collidable.sprite.Position.Y + collidable.sprite.GetGlobalBounds().Height / 2), 10, 3));
                                                 c.Remove(collidable);
                                             }
@@ -420,7 +404,7 @@ namespace SomeGame
                                     rooms[specificRoom].player.CollidesWith = rooms[specificRoom].Collidables;
                                     rooms[specificRoom].player.sprite.Position = rooms[specificRoom].playerSpawnPoint;
                                     rooms[specificRoom].player.perks.isUsingperk = false;
-
+                              
                                     foreach (var e in rooms[specificRoom].enemies)
                                         e.Followed = rooms[specificRoom].player;
 
@@ -443,7 +427,7 @@ namespace SomeGame
                                                     a = rng.Next(roomCount);
                                         GoToAnotherRoom(specificRoom: a);
                                     }
-                                    i.Action(r.player, ref r.uiPerk);
+                                    i.Action(ref r.player, ref r.uiPerk);
                                     if (i.RemoveMe) r.items.Remove(i);
                                 }
                             }
@@ -486,10 +470,8 @@ namespace SomeGame
 
                             /////// =============================== Drawing =============================== ///////
 
-
                             window.DispatchEvents();
-                            window.Clear(Color.Black);
-
+                            //window.Clear(Color.Black);
 
                             // ================== Non-UI ==================
 
@@ -690,7 +672,7 @@ namespace SomeGame
                     if (scrollingBG.Position.X < -scrollingBG.GetGlobalBounds().Width / 2) scrollingBG.Position = new Vector2f(0, 0);
 
                     Orb.Rotation += 0.5f;
-                    if (tick % 1 == 0)
+                    if (tick % 1 == 0) 
                     {
                         //Orb.Color = new Color((byte)rng.Next(100, 200), (byte)rng.Next(100, 200), (byte)rng.Next(100, 200));
                         rainbowPointer = rainbowPointer >= Resources._RainbowStrip.Size.X - 1 ? 0 : rainbowPointer + 1;
@@ -730,7 +712,7 @@ namespace SomeGame
                                         hasGeneratedMap = true;
                                         rooms.Clear();
                                         for (int i = 0; i < roomCount; i++)
-                                            rooms.Add(new Room(i, cResolution, mapCount, grid, boundsOffset));
+                                            rooms.Add(new Room(i));
                                     }
                                     if ((hasGeneratedMap && b == menuButtons[1]) || b == menuButtons[0])
                                     {
@@ -744,7 +726,7 @@ namespace SomeGame
                                         Environment.Exit(1);
                                 }
                             }
-                            else b.Color = (b == menuButtons[1] && !hasGeneratedMap) ? new Color(100, 100, 100) : Color.White;
+                            else b.Color = (b == menuButtons[1] && !hasGeneratedMap) ? new Color(100,100,100) : Color.White;
                         }
                     }
                     else
@@ -796,13 +778,13 @@ namespace SomeGame
                                                 window.Position = new Vector2i((int)VideoMode.DesktopMode.Width / 2 - (int)window.Size.X / 2, (int)VideoMode.DesktopMode.Height / 2 - (int)window.Size.Y / 2 - 20);
                                             }
                                         }
-                                        if (File.Exists("settings.txt"))
+                                        if (File.Exists(@"Target\settings.txt"))
                                         {
                                             string output = "";
                                             output += "resolution: " + Resolution.X + " " + Resolution.Y;
                                             output += "\nmusic: " + sliders[0].value;
                                             output += "\nsfx: " + sliders[1].value;
-                                            File.WriteAllText("settings.txt", output);
+                                            File.WriteAllText(@"Target\settings.txt", output);
                                         }
                                         optionsOn = AntiHoldDown(optionsOn);
                                     }
@@ -851,7 +833,7 @@ namespace SomeGame
                             {
                                 rooms.Clear();
                                 for (int i = 0; i < roomCount; i++)
-                                    rooms.Add(new Room(i, cResolution, mapCount, grid, boundsOffset));
+                                    rooms.Add(new Room(i));
                                 gameOver = false;
                                 gameOn = true;
                                 OST.deathScreen.Stop();
@@ -874,17 +856,17 @@ namespace SomeGame
             }
         }
 
-        public void PlaySound(Sound sound, bool pitchShift = false, int range = 0)
+        public static void PlaySound(Sound sound, bool pitchShift = false, int range = 0)
         {
             Sound playMe = new Sound(sound);
             float pitch = 0;
-            if (pitchShift) pitch = ((range == 0) ? rng.Next(1, 50) : range) / 100f;
+            if (pitchShift) pitch = ((range == 0) ? rng.Next(1, 50) : range) /100f;
 
             playMe.Pitch = 1 - pitch;
             playMe.Play();
         }
 
-        public void ShakeScreen()
+        public static void ShakeScreen()
         {
             int actualamount = 50;
             int amount = actualamount;
@@ -898,20 +880,20 @@ namespace SomeGame
             }
         }
 
-        public Vector2f ToMousePos()
+        public static Vector2f ToMousePos()
         {
             Vector2f pos = new Vector2f(Mouse.GetPosition(window).X * cResolution.X / Resolution.X, Mouse.GetPosition(window).Y * cResolution.Y / Resolution.Y);
             return pos;
         }
 
-        public bool IsMouseOver(FloatRect Here)
+        public static bool IsMouseOver(FloatRect Here)
         {
             if (new FloatRect(new Vector2f(Mouse.GetPosition(window).X * cResolution.X / Resolution.X, Mouse.GetPosition(window).Y * cResolution.Y / Resolution.Y), new Vector2f(1, 1)).Intersects(Here))
                 return true;
             else return false;
         }
 
-        public void DipToBlack()
+        public static void DipToBlack()
         {
             int opacity = 0;
             while (opacity < 255)
@@ -921,7 +903,7 @@ namespace SomeGame
                 opacity += 5;
             }
         }
-        public void DipToNormal()
+        public static void DipToNormal()
         {
             int opacity = 255;
             while (opacity > 0)
@@ -932,7 +914,7 @@ namespace SomeGame
             }
         }
 
-        public bool AntiHoldDown(bool SwitchMe = false, string button = "")
+        public static bool AntiHoldDown(bool SwitchMe = false, string button = "")
         {
             switch (button)
             {
@@ -955,7 +937,7 @@ namespace SomeGame
             return SwitchMe;
         }
 
-        void Win_Closed(object sender, EventArgs e)
+        static void Win_Closed(object sender, EventArgs e)
         {
             window.Close();
         }

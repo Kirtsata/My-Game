@@ -9,7 +9,7 @@ using SFML.Audio;
 using SFML.Window;
 using System.Threading;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Entity : Program
     {

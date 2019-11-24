@@ -9,9 +9,9 @@ using SFML.System;
 using SFML.Audio;
 using System.IO;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
-    class Room
+    class Room : Program
     {
         public List<Entity> enemies = new List<Entity>();
         public List<Entity> rocks = new List<Entity>();
@@ -25,8 +25,7 @@ namespace SomeGame
         public List<Item> items = new List<Item>();
         public bool hasSpawnedItem = false;
 
-        public Entity player;
-
+        public Entity player = new Entity((int)cResolution.X / 2, (int)cResolution.Y / 2, Resources._playerDown, Resources._playerUp, Resources._playerLeft, Resources._playerRight, IsPlayer: true);
         public UI_Heart ui_Heart;
         public UI_Minimap ui_Minimap;
         public UI_Stat[] uiStats = new UI_Stat[]
@@ -43,23 +42,14 @@ namespace SomeGame
         public bool isActive;
         public bool hasBeenActive;
 
-        Random rng = new Random();
-        Vector2u cResolution;
-        float boundsOffset;
-
-
-        public Room(int number, Vector2u _cResolution, int mapCount, Grid grid, float _boundsOffset)
+        public Room(int number)
         {
-            boundsOffset = _boundsOffset;
-            cResolution = _cResolution;
-            player = new Entity((int) cResolution.X / 2, (int) cResolution.Y / 2, Resources._playerDown, Resources._playerUp, Resources._playerLeft, Resources._playerRight, IsPlayer: true);
-
             player.CollidesWith = Collidables;
             ui_Heart = new UI_Heart(Resources._hearts, player.Health);
             ui_Minimap = new UI_Minimap(number);
 
             List<string> mapInfo = new List<string>();
-            mapInfo = File.ReadAllLines("map" + rng.Next(mapCount) + ".txt").ToList();
+            mapInfo = File.ReadAllLines(@"Target\map" + rng.Next(mapCount) + ".txt").ToList();
             for (int i = 0; i < mapInfo.Count; i++)
             {
                 string[] entries = mapInfo[i].Split(' ');
@@ -101,9 +91,9 @@ namespace SomeGame
             }
 
             List<string> layout = new List<string>();
-            if (File.Exists("layout.txt"))
+            if (File.Exists(@"Target\layout.txt"))
             {
-                layout = File.ReadAllLines("layout.txt").ToList();
+                layout = File.ReadAllLines(@"Target\layout.txt").ToList();
 
                 string[] entries = layout[number].Split(' ');
                 int breakPoint = -1;
@@ -135,6 +125,8 @@ namespace SomeGame
             Collidables.Add(rocks);
             Collidables.Add(iron);
         }
+
+        bool hasPlayedDoorSound = false;
         public void Update()
         {
             if (isActive) hasBeenActive = true;
@@ -142,6 +134,12 @@ namespace SomeGame
             bool areEnemiesAlive = false;
             foreach (var e in enemies)
                 if (!e.isDead) areEnemiesAlive = true;
+            if (!areEnemiesAlive && !hasPlayedDoorSound)
+            {
+                OST.DoorOpen.Pitch = (100 * rng.Next(1, 3)) / 100f;
+                OST.DoorOpen.Play();
+                hasPlayedDoorSound = true;
+            }
 
             if (!areEnemiesAlive && !hasSpawnedItem)
             {

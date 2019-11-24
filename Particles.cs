@@ -8,7 +8,7 @@ using SFML.Window;
 using SFML.System;
 using SFML.Audio;
 
-namespace SomeGame
+namespace Another_SFML_Project
 {
     class Particles : Program
     {
