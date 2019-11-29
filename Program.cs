@@ -128,10 +128,10 @@ namespace Another_SFML_Project
                             }
                     }
                     if (entries[0] == "music:")
-                        sliders[0].value = float.Parse(entries[1]);
+                        sliders[0].value = float.Parse(entries[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
 
                     if (entries[0] == "sfx:")
-                        sliders[1].value = float.Parse(entries[1]);
+                        sliders[1].value = float.Parse(entries[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
                 }
             }
 

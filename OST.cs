@@ -30,7 +30,7 @@ namespace Another_SFML_Project
 
         static Sound AddSound(string ogg)
         {
-            return new Sound(new SoundBuffer(@$"Target\Music\{ogg}.ogg"));
+            return new Sound(new SoundBuffer($@"Target\Music\{ogg}.ogg"));
         }
     }
 }
