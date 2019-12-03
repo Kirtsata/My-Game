@@ -1,3 +1,0 @@
-resolution: 900 600
-music: 55
-sfx: 52,57143
