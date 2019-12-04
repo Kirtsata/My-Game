@@ -8,6 +8,7 @@ using SFML.Window;
 using SFML.System;
 using SFML.Audio;
 using System.IO;
+using System.Diagnostics;
 
 namespace Another_SFML_Project
 {
@@ -139,6 +140,7 @@ namespace Another_SFML_Project
                 OST.DoorOpen.Pitch = (100 * rng.Next(1, 3)) / 100f;
                 OST.DoorOpen.Play();
                 hasPlayedDoorSound = true;
+                Debug.WriteLine("fard");
             }
 
             if (!areEnemiesAlive && !hasSpawnedItem)

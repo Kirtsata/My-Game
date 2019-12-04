@@ -8,6 +8,7 @@ using SFML.System;
 using SFML.Audio;
 using SFML.Window;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Another_SFML_Project
 {
@@ -129,12 +130,51 @@ namespace Another_SFML_Project
                     PlayerMovement();
                     PlayerShoot();
                     PlayerSide();
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.Space) && !perks.isUsingperk && perks.hasPerk && perks.charges == 2) 
+                    if (Keyboard.IsKeyPressed(Keyboard.Key.Space) && !perks.isUsingperk && perks.hasPerk && perks.charges == 2)
                     {
                         perks.charges = 0;
                         perks.isUsingperk = true;
                     }
+                    if (Keyboard.IsKeyPressed(Keyboard.Key.C) && perks.hasPerk && tick % 20 == 0)
+                        perks.isUsingperk = true;
+
                     isColliding = !(perks.hasJetpack && perks.isUsingperk);
+                    if (perks.isUsingperk)
+                    {
+                        if (perks.hasKatana)
+                        {
+                            OST.Slash.Play();
+                            perks.startSTC = true;
+                            FloatRect tempR = new FloatRect(collider.Left, collider.Top, collider.Width, collider.Height);
+
+                            perks.isUsingperk = false;
+                            if (sprite.Texture == texD) 
+                            {
+                                tempR.Height = perks.katRange + collider.Height;
+                                sprite.Position += new Vector2f(0, perks.katRange);
+                            }
+                            if (sprite.Texture == texU)
+                            {
+                                tempR.Height = -perks.katRange;
+                                sprite.Position += new Vector2f(0, -perks.katRange);
+                            }
+                            if (sprite.Texture == texR)
+                            {
+                                tempR.Width = perks.katRange + collider.Height;
+                                sprite.Position += new Vector2f(perks.katRange, 0);
+                            }
+                            if (sprite.Texture == texL)
+                            {
+                                tempR.Width = -perks.katRange;
+                                sprite.Position += new Vector2f(-perks.katRange, 0);
+                            }
+
+                            foreach (var c in CollidesWith.ToList())
+                                foreach (var cs in c.ToList())
+                                    if (tempR.Intersects(cs.collider))
+                                        c.Remove(cs);
+                        }
+                    }
                     perks.Update(sprite);
 
                     if (Health < LastHealth)
@@ -332,7 +372,7 @@ namespace Another_SFML_Project
                     else if (Keyboard.IsKeyPressed(Keyboard.Key.Down)) perks.katDir = 3;
                     if (perks.katDir != -1)
                     {
-                        playSound.Add(new Thread(() => PlaySound(OST.Slash, true, rng.Next(-5, 30))));
+                        playSound.Add(new Thread(() => PlaySound(OST.Whoosh, true, rng.Next(-5, 30))));
                         playSound[playSound.Count - 1].Start();
                     }
                 }
@@ -471,18 +511,27 @@ namespace Another_SFML_Project
             public AnimatedSprite JetPackL = new AnimatedSprite(Resources._jetPack, true, 6, 1, _flipX: true, _hasStoppedState: true);
             public AnimatedSprite JetPackR = new AnimatedSprite(Resources._jetPack, true, 6, 1, _hasStoppedState: true);
 
-            public bool hasKatana;
+            public bool hasKatana = true;
             public float cKatDamage = 2;
             public float katDamage = 2;
             public int katDir = -1;
             public float katSpeed = 5.75f;
+            public float katRange = 400;
 
-            float offsetL = 0, offsetR = 0, offsetU = 0, offsetD = 0;
+            private float offsetL = 0, offsetR = 0, offsetU = 0, offsetD = 0;
 
             public Sprite KatanaL = new Sprite(Resources._katana) { Origin = (Vector2f)Resources._katana.Size / 2, Scale = new Vector2f(-7, 7) };
             public Sprite KatanaR = new Sprite(Resources._katana) { Origin = (Vector2f)Resources._katana.Size / 2, Scale = new Vector2f(7, 7) };
             public Sprite KatanaU = new Sprite(Resources._katana) { Origin = (Vector2f)Resources._katana.Size / 2, Scale = new Vector2f(-7, -7), Rotation = 90 };
             public Sprite KatanaD = new Sprite(Resources._katana) { Origin = (Vector2f)Resources._katana.Size / 2, Scale = new Vector2f(-7, -7), Rotation = -90 };
+            public Sprite SlashL = new Sprite(Resources._slash) { Scale = new Vector2f(7, 7), Rotation = 90 };
+            public Sprite SlashR = new Sprite(Resources._slash) { Scale = new Vector2f(7, 7), Rotation = 90 };
+            public Sprite SlashU = new Sprite(Resources._slash) { Scale = new Vector2f(7, 7) };
+            public Sprite SlashD = new Sprite(Resources._slash) { Scale = new Vector2f(7, 7), Rotation = 180 };
+            public int showOnlySlash = - 1;
+            public int slashTickCountdown = 10;
+            public bool startSTC;
+
             public AnimatedSprite KatanaSlashR = new AnimatedSprite(Resources._katanaSlash, true, 7, 1, _hasStoppedState: true);
             public AnimatedSprite KatanaSlashL = new AnimatedSprite(Resources._katanaSlash, true, 7, 1, _flipX:true, _hasStoppedState: true);
             public AnimatedSprite KatanaSlashU = new AnimatedSprite(Resources._katanaSlash, true, 7, 1, _rotation: -90, _hasStoppedState: true);
@@ -492,7 +541,8 @@ namespace Another_SFML_Project
 
             public void Update(Sprite _sprite)
             {
-                if (hasJetpack || hasKatana) hasPerk = true;
+                if (hasJetpack || hasKatana) 
+                    hasPerk = true;
 
                 // ============ Jetpack Position Update ============                            Not very optimized, but no one will see it (:
                 JetPackR.Update(new Vector2f((_sprite.Position.X + JetPackR.currentSprite.GetGlobalBounds().Width) - 23 - 5, _sprite.Position.Y + 20), isUsingperk);
@@ -509,6 +559,46 @@ namespace Another_SFML_Project
                 KatanaR.Position = _sprite.Position + new Vector2f(_sprite.GetGlobalBounds().Width + 5, 40 + offsetR);
                 KatanaU.Position = _sprite.Position + new Vector2f(0 + offsetU + 20, 10);
                 KatanaD.Position = _sprite.Position + new Vector2f(_sprite.GetGlobalBounds().Width / 2 + 10 - offsetD, 95);
+
+                if (startSTC)
+                {
+                    if (slashTickCountdown % 2 == 0)
+                    {
+                        SlashU.Scale = new Vector2f(SlashU.Scale.X / 2, SlashU.Scale.Y);
+                        SlashU.Position += new Vector2f(SlashU.GetGlobalBounds().Width / 2, 0);
+
+                        SlashD.Scale = new Vector2f(SlashD.Scale.X / 2, SlashD.Scale.Y);
+                        SlashD.Position -= new Vector2f(SlashD.GetGlobalBounds().Width / 2, 0);
+
+                        SlashL.Scale = new Vector2f(SlashL.Scale.X / 2, SlashL.Scale.Y);
+                        SlashL.Position += new Vector2f(0, SlashL.GetGlobalBounds().Height / 2);
+
+                        SlashR.Scale = new Vector2f(SlashR.Scale.X / 2, SlashR.Scale.Y);
+                        SlashR.Position += new Vector2f(0, SlashR.GetGlobalBounds().Height / 2);
+
+                    }
+
+                    slashTickCountdown--;
+                }
+                else
+                {
+                    SlashU.Position = _sprite.Position - new Vector2f(-10, SlashU.GetGlobalBounds().Height);
+                    SlashD.Position = _sprite.Position + new Vector2f(60, _sprite.GetGlobalBounds().Height + SlashD.GetGlobalBounds().Height);
+                    SlashL.Position = _sprite.Position + new Vector2f(0, 30);
+                    SlashR.Position = _sprite.Position + new Vector2f(_sprite.GetGlobalBounds().Width + SlashR.GetGlobalBounds().Width, 30);
+
+                    SlashU.Scale = new Vector2f(7, 7);
+                    SlashD.Scale = new Vector2f(7, 7);
+                    SlashL.Scale = new Vector2f(7, 7);
+                    SlashR.Scale = new Vector2f(7, 7);
+
+                    showOnlySlash = -1;
+                }
+                if (slashTickCountdown <= 0)
+                {
+                    slashTickCountdown = 10;
+                    startSTC = false;
+                }
 
                 if (katDir == 0) { KatanaL.Rotation -= katSpeed; offsetL += 2; KatanaSlashL.Update(_sprite.Position + new Vector2f(-75, -25), true); }
                 else { KatanaSlashL.Update(_sprite.Position, false); KatanaL.Rotation = 0; offsetL = 0;}

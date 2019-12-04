@@ -230,7 +230,7 @@ namespace Another_SFML_Project
                                     if (!enemy.isDead && projectile.collider.Intersects(enemy.collider))
                                     {
                                         r.projectiles.Remove(projectile);
-                                        enemy.Health-=r.player.Damage;
+                                        enemy.Health -= r.player.Damage;
                                         r.particles.Add(new Particles(Resources._bloodParticles, new Vector2f(enemy.sprite.Position.X + enemy.sprite.Texture.Size.X * enemy.sprite.Scale.X / 2, enemy.sprite.Position.Y + enemy.sprite.Texture.Size.Y * enemy.sprite.Scale.Y / 2), 5, Lifespan: 15));
                                         if (enemy.Health <= 0)
                                         {
@@ -522,6 +522,23 @@ namespace Another_SFML_Project
                             window.Draw(r.player.perks.KatanaSlashL.currentSprite);
                             window.Draw(r.player.perks.KatanaSlashU.currentSprite);
                             window.Draw(r.player.perks.KatanaSlashD.currentSprite);
+                            if (r.player.perks.startSTC )
+                            {
+                                if(r.player.perks.showOnlySlash == -1)
+                                {
+                                    if (r.player.sprite.Texture == r.player.texR) r.player.perks.showOnlySlash = 0;
+                                    if (r.player.sprite.Texture == r.player.texL) r.player.perks.showOnlySlash = 1;
+                                    if (r.player.sprite.Texture == r.player.texU) r.player.perks.showOnlySlash = 2;
+                                    if (r.player.sprite.Texture == r.player.texD) r.player.perks.showOnlySlash = 3;
+                                }
+                                else
+                                {
+                                    if (r.player.perks.showOnlySlash == 0) window.Draw(r.player.perks.SlashR);
+                                    if (r.player.perks.showOnlySlash == 1) window.Draw(r.player.perks.SlashL);
+                                    if (r.player.perks.showOnlySlash == 2) window.Draw(r.player.perks.SlashU);
+                                    if (r.player.perks.showOnlySlash == 3) window.Draw(r.player.perks.SlashD);
+                                }
+                            }
 
                             if (r.player.perks.hasKatana)
                             {

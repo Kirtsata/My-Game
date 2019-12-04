@@ -61,6 +61,8 @@ namespace Another_SFML_Project
                     OST.Explosion.Volume = value;
                     OST.Flesh.Volume = value;
                     OST.Slash.Volume = value;
+                    OST.DoorOpen.Volume = value;
+                    OST.Whoosh.Volume = value;
                     break;
                 case "Music":
                     OST.bg.Volume = value;
